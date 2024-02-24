@@ -52,7 +52,7 @@ async function submitWord(word) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       "gameId": gameId,
-      "word": word
+      "word": word.toUpperCase(),
     })
   });
 
@@ -60,11 +60,30 @@ async function submitWord(word) {
   return result;
 }
 
-function handleSubmit(evt) {
-  const word = getWord();
-  const word_response = submitWord(word);
 
+/** Gets the API's response and manipulates the DOM according to that.
+ * If the word is not in the dictionary or on the board, it displays a message.
+ * Else, it adds the word to correct guesses list.
+ */
+async function handleResult(response) {
+  $message.empty();
+
+  if (response.result === "not-word") {
+    $message.append("<p>").text("It is not a word!");
+  } else if (response.result === "not-on-board") {
+    $message.append("<p>").text("It is not on the board!");
+  } else {
+    $playedWords.append($("<li>").text($wordInput.val()));
+  }
 }
 
-$form.on("submit", handleClick);
+
+async function handleSubmit(evt) {
+  evt.preventDefault();
+  const word = getWord();
+  const wordResponse = await submitWord(word);
+  await handleResult(wordResponse);
+}
+
+$form.on("submit", handleSubmit);
 start();
