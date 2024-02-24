@@ -41,13 +41,18 @@ def new_game():
 
 @app.post("/api/score-word")
 def score_word():
+    """Gets game id and word, check if the word is on the board and in
+    the dictionary. Returns a jsonify answer according to the word's
+    existence on the board or in the dictionary."""
+
     game_id = request.json['gameId']
     word = request.json['word']
+    game = games[game_id]
 
-    if not games[game_id].word_list.check_word(word):
+    if not game.word_list.check_word(word):
         return jsonify({"result": "not-word"})
 
-    if not games[game_id].check_word_on_board(word):
+    if not game.check_word_on_board(word):
         return jsonify({"result": "not-on-board"})
 
     return jsonify({"result": "ok"})
